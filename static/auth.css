@@ -1,0 +1,32 @@
+/* Source: Moonie Redirect 7.0.1 admin UI, ui/pages/auth.css, trimmed: the rules of the first-run setup screen. */
+/* Styles of the login screen. */
+
+.auth-desc {
+  color: var(--muted);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.auth-submit {
+  align-self: stretch;
+}
+
+.auth-notice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  color: var(--ink-soft);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  font-weight: var(--type-label-weight);
+}

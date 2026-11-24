@@ -1,0 +1,65 @@
+# moonie-redirect behind Traefik, on the LAN. Values come from .env (see .env.example), the store key and the password
+# from files. Settings (/admin/settings) set the password, API keys, the webhook and the Cloudflare token in the
+# database, which wins over the files: the password, API token and Cloudflare token files are fallbacks. No port is
+# published: Traefik reaches the container on the `proxy` network.
+name: moonie-redirect
+
+services:
+  moonie:
+    image: ${MOONIE_REDIRECT_IMAGE:-moonie-redirect:local}
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs: ["/tmp:size=16m"]
+    mem_limit: 128m
+    pids_limit: 64
+    restart: unless-stopped
+    environment:
+      MOONIE_REDIRECT_PUBLIC_BASE_URL: ${MOONIE_REDIRECT_PUBLIC_BASE_URL:?set MOONIE_REDIRECT_PUBLIC_BASE_URL in .env}
+      # The key the Cloudflare token and the webhook secret are sealed with, kept outside the data volume. Without the
+      # store_key lines (this one, its entry below and its secret) the app draws store.key in the volume, which a backup
+      # of the volume then holds too
+      MOONIE_REDIRECT_STORE_KEY_FILE: /run/secrets/store_key
+      MOONIE_REDIRECT_PASSWORD_FILE: /run/secrets/password
+      MOONIE_REDIRECT_API_TOKEN_FILE: /run/secrets/api_token
+      # Cloudflare (optional, else set the token in Settings): uncomment this line, the secret below and its entry
+      # MOONIE_REDIRECT_CLOUDFLARE_TOKEN_FILE: /run/secrets/cloudflare_token
+      TZ: ${TZ:-UTC}
+    secrets:
+      - store_key
+      - password
+      - api_token
+      # - cloudflare_token
+    volumes:
+      - data:/data
+    networks: [proxy]
+    # Traefik: uncomment and set the router's rule to the public host (the same as MOONIE_REDIRECT_PUBLIC_BASE_URL)
+    # labels:
+    #   traefik.enable: "true"
+    #   traefik.http.routers.moonie-redirect.rule: Host(`${MOONIE_REDIRECT_HOST}`)
+    #   traefik.http.routers.moonie-redirect.entrypoints: ${MOONIE_REDIRECT_ENTRYPOINT:-websecure}
+    #   traefik.http.services.moonie-redirect.loadbalancer.server.port: "8080"
+
+volumes:
+  # The SQLite database, /data/redirect.db
+  data: {}
+
+networks:
+  # Traefik's network, created outside this stack
+  proxy:
+    external: true
+    name: ${MOONIE_REDIRECT_PROXY_NETWORK:-proxy}
+
+secrets:
+  # 64 hexadecimal characters (`just store-key > secrets/store_key`), readable by uid 10001; back it up apart
+  store_key:
+    file: ./secrets/store_key
+  # The admin password, on one line, readable by uid 10001 (the app's user); a password set in Settings wins over it
+  password:
+    file: ./secrets/password
+  # A random token of 32 characters or more, readable by uid 10001: a key with every scope, beside those made in Settings
+  api_token:
+    file: ./secrets/api_token
+  # Optional: a Cloudflare API token, readable by uid 10001. Left commented, as compose stops on a missing file
+  # cloudflare_token:
+  #   file: ./secrets/cloudflare_token

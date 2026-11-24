@@ -1,0 +1,7 @@
+line-length = 120
+target-version = "py313"
+# SiteLuna's guide checker, vendored byte for byte (D31): never reformatted or linted here
+extend-exclude = ["tools/guide_check.py"]
+
+[lint]
+select = ["E", "F", "W", "I", "B", "UP"]

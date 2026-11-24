@@ -1,0 +1,463 @@
+/* Source: Moonie Redirect 7.0.1 admin UI, system/redirect/ui/redirect.css, trimmed: zones, the link address
+   lines. Added: the frame's logout form, the sidebar's buttons and its foot of glyphs, and the empty eyebrow of the Settings page (D30). */
+
+/* The Redirect pages: what the kit does not cover. Tokens only, so that tokens.css alone sets the look. */
+
+.redirect-intro {
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  font-weight: var(--type-small-weight);
+  color: var(--muted);
+}
+
+/* What the page is about and how many it holds: side by side, the count under the text once the two no longer fit */
+.redirect-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.redirect-head .redirect-intro {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.redirect-notice {
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  color: var(--success);
+}
+
+.redirect-notice-error {
+  color: var(--danger);
+}
+
+/* A list and its form side by side, the form under the list once the two no longer fit */
+.redirect-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+/* The kit's table gives its focus ring room past its own edges, which a table wider than the card shows as rows sticking
+   out by that much. The card holds them in, and a row's ring goes inside it. */
+.redirect-list-card {
+  flex: 2 1 560px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.redirect-list-card .table-row-action:focus-visible {
+  outline-offset: -2px;
+}
+
+.redirect-form-host {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.redirect-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.redirect-search {
+  flex: 1 1 200px;
+  width: auto;
+  min-width: 0;
+}
+
+.redirect-none {
+  padding: var(--space-4);
+  border-top: 1px solid var(--line);
+}
+
+.redirect-link {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.redirect-path {
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.redirect-name {
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  font-weight: var(--type-small-weight);
+  color: var(--muted);
+}
+
+.redirect-target,
+.redirect-expires,
+.redirect-modified {
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  color: var(--ink-soft);
+}
+
+.redirect-expires {
+  color: var(--muted);
+}
+
+.redirect-modified {
+  color: var(--faint);
+}
+
+.redirect-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* What Copy says for a moment may be wider than its column: it stays on one line and reaches over the cell before it, on
+   its own background, so that the row keeps its height and no column moves */
+.redirect-copy {
+  position: relative;
+  max-width: none;
+  white-space: nowrap;
+}
+
+.redirect-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.redirect-form-title {
+  flex: none;
+}
+
+.redirect-field-line {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.redirect-field-line .input {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+}
+
+.redirect-slug-preview {
+  font-size: var(--type-code-small-size);
+  line-height: var(--type-code-small-line);
+}
+
+.redirect-slug-warning {
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  color: var(--warning);
+}
+
+.redirect-slug-warning:empty {
+  display: none;
+}
+
+.redirect-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-3);
+}
+
+.redirect-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.redirect-actions-gap {
+  flex: 1 1 auto;
+}
+
+/* --- The QR page --- */
+
+/* What shows through a transparent QR code: an image has no theme, so dark and light modules must both stay visible */
+.redirect-qr-paper {
+  background: repeating-conic-gradient(var(--ink-soft) 0 25%, var(--muted) 0 50%) 0 0 / 16px 16px;
+}
+
+.redirect-qr-thumb {
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+/* A code with no drawing: the same box, and a word where the frame stands empty */
+.redirect-qr-thumb.redirect-qr-none {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--line-strong);
+  color: var(--muted);
+}
+
+.redirect-qr-frame .redirect-qr-none {
+  display: block;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.redirect-qr-frame .redirect-qr-none[hidden] {
+  display: none;
+}
+
+.redirect-qr-problem {
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  color: var(--warning);
+}
+
+.redirect-qr-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The box stands before the image comes, so that nothing below it moves */
+.redirect-qr-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 216px;
+  height: 216px;
+  max-width: 100%;
+  margin: 0 auto;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.redirect-qr-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.redirect-qr-frame img[hidden] {
+  display: none;
+}
+
+/* The image of the last design that worked, while the form holds one that does not */
+.redirect-qr-frame[data-stale] img {
+  opacity: 0.35;
+}
+
+.redirect-design fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.redirect-design legend {
+  margin-bottom: var(--space-3);
+  padding: 0;
+}
+
+/* Only a refusal sends the focus there, and the message under the preview is what shows */
+.redirect-design fieldset:focus {
+  outline: none;
+}
+
+.redirect-colors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: var(--space-3);
+}
+
+.redirect-color {
+  width: 100%;
+  height: var(--control-height);
+  padding: var(--space-1);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  cursor: pointer;
+}
+
+.redirect-color:disabled {
+  border-color: var(--line);
+  opacity: 0.4;
+  cursor: default;
+}
+
+.redirect-color-value {
+  font-size: var(--type-code-small-size);
+  line-height: var(--type-code-small-line);
+  font-weight: var(--type-code-small-weight);
+  color: var(--faint);
+}
+
+.redirect-color-value:empty {
+  min-height: var(--type-code-small-line);
+}
+
+.redirect-check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  font-weight: var(--type-label-weight);
+}
+
+.redirect-check input,
+.redirect-range input {
+  accent-color: var(--accent);
+}
+
+.redirect-range {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-height);
+}
+
+.redirect-range input {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+}
+
+.redirect-range output {
+  flex: none;
+  min-width: 4ch;
+  text-align: right;
+  font-size: var(--type-code-small-size);
+  line-height: var(--type-code-small-line);
+}
+
+.redirect-logo-line,
+.redirect-logo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.redirect-logo-line {
+  gap: var(--space-3);
+}
+
+.redirect-logo-state {
+  font-weight: var(--type-small-weight);
+  color: var(--muted);
+}
+
+/* A file input draws its own words, in the browser's language: the words here are the page's, and the input stays the one
+   that takes the keyboard and the focus */
+.redirect-file {
+  position: relative;
+}
+
+.redirect-file input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.redirect-file:focus-within {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* The frame's Log out is a form posted to /logout: the form leaves the sidebar's layout to its button */
+.logout-form {
+  display: contents;
+}
+
+/* The sidebar's foot: Settings and Log out as two glyph buttons sharing the sidebar's width in equal halves. The sidebar
+   is as tall as the page: the foot stays in sight at the bottom of the window while a long page scrolls. */
+.nav-foot {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding: var(--space-2) 0;
+  background: var(--sidebar);
+}
+
+.nav-foot-links {
+  display: contents;
+}
+
+.nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 0;
+  min-width: 0;
+  height: var(--touch-min);
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Every button of the sidebar, the menu's items and the foot's glyphs, is one family (D30), with four states that never
+   look alike:
+   - at rest: raised surface, strong line;
+   - under the pointer: darker surface, lighter line, full ink;
+   - the current page: filled with an accent tint, accent text, an accent-tinted line, the same under the pointer;
+   - keyboard focus: the shell's ring, 2px of --focus-ring drawn 2px outside the border, on top of any of the above.
+   The current page is a fill inside the border and the focus is a line with a gap outside it, so the two can be told
+   apart even on the same button. */
+.nav-section {
+  gap: var(--space-2);
+}
+
+.nav-item,
+.nav-icon {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  color: var(--ink-soft);
+}
+
+.nav-item:hover,
+.nav-icon:hover {
+  border-color: var(--faint);
+  background: var(--line);
+  color: var(--ink);
+}
+
+.nav-item[aria-current='page'],
+.nav-icon[aria-current='page'] {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--line-strong));
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface-raised));
+  color: var(--accent);
+}
+
+.nav-item:focus-visible,
+.nav-icon:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* A page with no eyebrow (Settings) keeps its line, so the title and the page below it do not move between pages */
+#page-section:empty {
+  min-height: var(--type-label-line);
+}

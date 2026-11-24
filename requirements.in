@@ -1,0 +1,6 @@
+flask
+waitress
+segno
+idna
+requests
+cryptography

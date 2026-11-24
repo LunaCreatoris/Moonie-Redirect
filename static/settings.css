@@ -1,0 +1,492 @@
+/* Source: Moonie Redirect 7.0.1 admin UI, ui/pages/instance.css, keys.css, webhook.css and the settings rules of
+   plugins.css, trimmed: the Versions grid, the incoming calls card, the settings key and footer of
+   other plugins. Added: the page's tabs and panel, the facts of the sign-in, the keys card head, the token check, the
+   permissions list and the Cloudflare domains under them.
+   The Settings page: what the kit does not cover. Tokens only, so that the theme holds. */
+
+/* --- The page ------------------------------------------------------------------------------------------------------ */
+
+.settings-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.settings-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.settings-panel > .redirect-notice[hidden] {
+  display: none;
+}
+
+/* --- Security ------------------------------------------------------------------------------------------------------ */
+
+.instance-title {
+  flex: 0 0 auto;
+}
+
+.instance-desc {
+  margin-top: calc(var(--space-1) - var(--space-4));
+}
+
+.instance-origin {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.instance-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+}
+
+.instance-sep {
+  color: var(--faint);
+}
+
+.instance-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* --- Webhook ------------------------------------------------------------------------------------------------------- */
+
+.webhook-host,
+.webhook-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.webhook-title {
+  font-size: var(--type-section-title-size);
+  line-height: var(--type-section-title-line);
+  font-weight: var(--type-section-title-weight);
+}
+
+.webhook-desc {
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.webhook-title + .webhook-desc {
+  margin-top: calc(var(--space-3) * -1);
+}
+
+.webhook-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.webhook-field-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: 26px;
+}
+
+.webhook-secret-state {
+  display: inline-flex;
+  min-width: 0;
+}
+
+.webhook-events {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.webhook-event {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--touch-min);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  cursor: pointer;
+}
+
+/* The real checkbox stays in the page, for the keyboard and for screen readers; the box after it is what shows */
+.webhook-check {
+  position: absolute;
+  margin: 0;
+  width: 18px;
+  height: 18px;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.webhook-box {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--on-accent);
+}
+
+.webhook-box svg {
+  visibility: hidden;
+}
+
+.webhook-check:checked + .webhook-box {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.webhook-check:checked + .webhook-box svg {
+  visibility: visible;
+}
+
+.webhook-check:focus-visible + .webhook-box {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.webhook-event-name {
+  min-width: 0;
+  font-size: var(--type-code-size);
+  line-height: var(--type-code-line);
+  overflow-wrap: anywhere;
+}
+
+.webhook-event-hint {
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.webhook-event .webhook-event-hint {
+  margin-left: auto;
+  text-align: right;
+}
+
+.webhook-result-slot:empty {
+  display: none;
+}
+
+.webhook-result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  font-weight: var(--type-label-weight);
+}
+
+.webhook-result-note {
+  font-weight: var(--type-small-weight);
+  color: var(--muted);
+}
+
+.webhook-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.webhook-clear {
+  margin-right: auto;
+}
+
+.webhook-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-5);
+}
+
+.webhook-fact,
+.webhook-delivery {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.webhook-fact-label {
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  font-weight: var(--type-label-weight);
+}
+
+.webhook-fact-value {
+  font-family: var(--font-mono);
+  font-size: var(--type-code-size);
+  line-height: var(--type-code-line);
+}
+
+.webhook-delivery-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.webhook-disabled {
+  border-color: var(--warning);
+}
+
+.webhook-disabled-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* --- API keys ------------------------------------------------------------------------------------------------------ */
+
+.keys-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-5);
+}
+
+.keys-head-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.keys-desc {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.keys-alert {
+  padding: 0 var(--space-5) var(--space-3);
+}
+
+.keys-alert[hidden] {
+  display: none;
+}
+
+.keys-empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-5);
+  border-top: 1px solid var(--line);
+}
+
+.keys-empty-title {
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  font-weight: var(--type-label-weight);
+}
+
+.keys-file {
+  font-weight: var(--type-label-weight);
+}
+
+.keys-file-note {
+  padding: var(--space-3) var(--space-5) var(--space-5);
+  border-top: 1px solid var(--line);
+}
+
+.keys-mono {
+  font-family: var(--font-mono);
+  font-size: var(--type-code-size);
+  line-height: var(--type-code-line);
+  font-weight: var(--type-code-weight);
+  color: var(--ink-soft);
+}
+
+.keys-last {
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  color: var(--faint);
+}
+
+.keys-suggest-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.keys-suggest {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.keys-scope[aria-pressed='true'] {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.keys-secret-text {
+  color: var(--muted);
+}
+
+.code.keys-secret {
+  display: block;
+  color: var(--ink);
+  user-select: all;
+}
+
+/* --- Cloudflare ---------------------------------------------------------------------------------------------------- */
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-5);
+  padding: var(--space-5);
+}
+
+.setting {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.setting-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  font-weight: var(--type-label-weight);
+  overflow-wrap: anywhere;
+  /* The height of a chip, so a cell with a chip in its label lines up with one without */
+  min-height: calc(var(--type-label-line) + 2 * var(--space-1) + 2px);
+}
+
+.setting .field {
+  gap: var(--space-2);
+}
+
+.setting-fixed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-height);
+}
+
+.setting-env {
+  font-size: var(--type-code-small-size);
+  line-height: var(--type-code-small-line);
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+
+.token-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.token-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.token-form .field {
+  flex: 1 1 140px;
+}
+
+.token-form .form-error {
+  flex: 1 1 100%;
+  overflow-wrap: anywhere;
+}
+
+.token-form .form-error[hidden],
+.settings-alert[hidden] {
+  display: none;
+}
+
+.token-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* The Save of a field with a label and a help lines up with the field, not with its label */
+.settings-limit-buttons {
+  margin-top: calc(var(--type-label-line) + 2 * var(--space-1) + 2px + var(--space-2));
+}
+
+.settings-check {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.settings-perms {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.settings-perms-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.settings-perm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  overflow-wrap: anywhere;
+}
+
+.settings-perm-name {
+  font-weight: var(--type-label-weight);
+}
+
+.settings-perm-why {
+  color: var(--muted);
+}
+
+/* The domains under the token and the limit, spaced as the Cloudflare page was (D29) */
+.settings-cf-domains {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}

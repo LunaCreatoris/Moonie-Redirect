@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ status }} · Moonie Redirect{% endblock %}
+{% block body %}
+<div class="app" data-frame="bare">
+  <main class="page">
+    <section class="card state-card">
+      <span class="state-hero">{{ status }}</span>
+      <h1 class="state-title">{{ "This link does not exist" if status == 404 else "Try again in a moment" }}</h1>
+      <p class="state-desc">{{ "It may have expired or been removed." if status == 404 else "The links cannot be read right now." }}</p>
+    </section>
+  </main>
+</div>
+{% endblock %}

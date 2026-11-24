@@ -1,0 +1,42 @@
+{#- The admin frame, ported from the Moonie Redirect 7.0.1 admin UI (ui/index.html): static/ui/shell.js draws the menu, the status and the page. -#}
+{% extends "base.html" %}
+{% block meta %}<meta name="csrf-token" content="{{ csrf_token() }}" />{% endblock %}
+{% block title %}Moonie Redirect{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='redirect.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='cloudflare.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='settings.css') }}" />
+    <script type="module" src="{{ url_for('static', filename='ui/shell.js') }}"></script>
+{% endblock %}
+{% block body %}
+    <div class="app" id="app" data-frame="full">
+      <nav class="sidebar" id="sidebar" aria-label="Navigation">
+        <div class="brand">
+          <span class="brand-logo"><img class="brand-mark" src="{{ url_for('static', filename='mark.svg') }}" alt="" width="34" height="34" /></span>
+          <div class="brand-text">
+            <span class="brand-name">Moonie Redirect</span>
+            <span class="brand-sub">redirect {{ version }}</span>
+          </div>
+        </div>
+        <div class="nav-sections" id="nav-sections"></div>
+        <div class="nav-foot">
+          <div class="nav-foot-links" id="nav-foot-links"></div>
+          <form class="logout-form" method="post" action="{{ url_for('logout') }}">
+            <input type="hidden" name="csrf" value="{{ csrf_token() }}" />
+            <button class="nav-icon" id="logout" type="submit" aria-label="Log out" title="Log out"></button>
+          </form>
+        </div>
+      </nav>
+      <div class="column">
+        <header class="topbar">
+          <div class="topbar-title">
+            <span class="label" id="page-section"></span>
+            <h1 class="page-title" id="page-title"></h1>
+          </div>
+          <span class="chip" id="status"></span>
+          <button class="btn" id="reload" type="button"></button>
+        </header>
+        <main class="page" id="page" tabindex="-1"></main>
+      </div>
+    </div>
+{% endblock %}

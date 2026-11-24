@@ -1,0 +1,347 @@
+/* Source: Moonie Redirect 7.0.1 Cloudflare plugin, ui/cloudflare.css, trimmed: the entry tabs, their forms and QR
+   codes, held hosts. Added: a link's address in the Redirect pages, at the end.
+   The domains of Settings > Cloudflare: what the kit does not cover. Tokens only, so that tokens.css alone sets the
+   look. */
+
+.cf-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.cf-mark {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+}
+
+.cf-head-text {
+  flex: 1 1 320px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.cf-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.cf-head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.cf-intro {
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  font-weight: var(--type-small-weight);
+  color: var(--muted);
+}
+
+.cf-tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.cf-banner {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  color: var(--ink-soft);
+  overflow-wrap: anywhere;
+}
+
+.cf-banner p {
+  min-width: 0;
+}
+
+.cf-banner-danger {
+  border-color: var(--danger);
+}
+
+.cf-banner-warning {
+  border-color: var(--warning);
+}
+
+.cf-banner .dot {
+  flex: 0 0 auto;
+}
+
+.cf-notice {
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  color: var(--success);
+  overflow-wrap: anywhere;
+}
+
+.cf-notice-error {
+  color: var(--danger);
+}
+
+.cf-list-card {
+  flex: 2 1 560px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.cf-hosts {
+  flex: none;
+}
+
+.cf-hosts [role='table'] {
+  min-width: 820px;
+}
+
+.cf-fallback-label {
+  display: none;
+}
+
+.cf-fallback-other {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+}
+
+.cf-fallback-address {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+.cf-fallback-none {
+  margin: 0;
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  color: var(--muted);
+}
+
+.cf-fallback-blocked {
+  margin: var(--space-1) 0 0;
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  color: var(--warning);
+}
+
+/* A phone has no room for six columns: each host stacks, name and choice on their own lines, so the choice never needs
+   a sideways scroll. The head goes, and the choice shows its own label instead */
+@media (max-width: 800px) {
+  .cf-hosts [role='table'] {
+    min-width: 0;
+  }
+
+  .cf-hosts .table-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cf-hosts .table-row:first-child {
+    display: none;
+  }
+
+  .cf-hosts .table-cell:nth-child(-n + 2) {
+    grid-column: 1 / -1;
+  }
+
+  .cf-fallback-label {
+    display: inline;
+  }
+}
+
+.cf-none {
+  padding: var(--space-4) var(--space-5);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  color: var(--muted);
+}
+
+.cf-url,
+.cf-small {
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.cf-muted {
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  color: var(--muted);
+}
+
+.cf-error-detail {
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.cf-banner .cf-error-detail {
+  display: block;
+}
+
+.cf-settings-link {
+  color: var(--accent);
+}
+
+/* The dialogs: wider than the kit's question, never wider than the window */
+.dialog:has(.cf-host-dialog),
+.dialog:has(.cf-gaps) {
+  width: min(640px, calc(100vw - var(--space-8)));
+  max-height: calc(100vh - var(--space-8));
+  /* A phone's 100vh is the window with its toolbars hidden, and would put the dialog's end behind them */
+  max-height: calc(100dvh - var(--space-8));
+  overflow-y: auto;
+}
+
+.cf-host-dialog,
+.cf-gaps,
+.cf-plan {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.cf-proposals {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.cf-proposal,
+.cf-tick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  min-width: 0;
+}
+
+.cf-proposal-off {
+  color: var(--muted);
+}
+
+.cf-proposal-name {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+
+.cf-typed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+}
+
+.cf-typed > .field {
+  flex: 1 1 200px;
+}
+
+.cf-steps {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  color: var(--ink-soft);
+}
+
+.cf-plan-blocked {
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  color: var(--danger);
+}
+
+.cf-plan-live {
+  margin-top: var(--space-3);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  color: var(--warning);
+}
+
+.cf-plan-live-tick {
+  margin-top: var(--space-2);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.cf-gap-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.cf-tick {
+  align-items: flex-start;
+  flex-wrap: nowrap;
+}
+
+.cf-tick-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.cf-tick-main {
+  overflow-wrap: anywhere;
+}
+
+.cf-tick-note {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+/* A link's address in the Redirect pages: a line under its name in a list, and the state under the form's select */
+.redirect-address {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  min-width: 0;
+}
+
+.redirect-address-host {
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  overflow-wrap: anywhere;
+}
+
+.redirect-address-state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.redirect-address-error {
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  color: var(--danger);
+}
+
+.redirect-address-detail {
+  flex-basis: 100%;
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
