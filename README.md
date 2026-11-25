@@ -1,9 +1,11 @@
 # moonie-redirect
 
-Fixed links that answer a redirect to a target which can change, so links and printed QR codes keep working when the
-target moves. It never serves or proxies the target. One Python file (`app.py`): Flask and Jinja for the pages and the
-API, waitress as the server, the standard library's `sqlite3` for the one table, `segno` for the QR codes and `idna`
-for international host names. The admin pages are plain ES modules in `static/ui`, with no build step.
+Redirect makes fixed links whose target can change, published three ways: a fixed URL whose path you choose, a short
+TinyURL-style link, or a QR code that holds that short link. When the target moves, you change it in one place and every
+link and printed code keeps working. It never serves or proxies the target. One Python file (`app.py`): Flask and Jinja
+for the pages and the API, waitress as the server, the standard library's `sqlite3` for the one table, `segno` for the
+QR codes and `idna` for international host names. The admin pages are plain ES modules in `static/ui`, with no build
+step.
 
 ## History
 

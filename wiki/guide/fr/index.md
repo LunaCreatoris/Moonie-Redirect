@@ -1,6 +1,6 @@
 ---
 title: Moonie Redirect
-description: Des liens fixes qui renvoient vers une cible que vous changez quand vous voulez, pour que les liens partagés et les QR codes imprimés marchent toujours.
+description: Redirect fait des liens figés dont la cible, elle, peut changer.
 status: Version 9.3.1
 github: https://github.com/LunaCreatoris/Moonie-Redirect
 order: 2
@@ -8,22 +8,31 @@ order: 2
 
 ## À quoi ça sert {#what-it-is-for}
 
-Un QR code imprimé ou un lien déjà envoyé ne se corrige plus. Redirect leur donne une adresse fixe qui répond par une
-redirection vers la cible du moment. Quand la cible change, vous la modifiez à un seul endroit, et tout ce qui a été
-imprimé ou partagé continue de marcher.
+Redirect fait des liens figés dont la cible, elle, peut changer. Le lien que vous publiez ne bouge plus jamais ;
+l'adresse vers laquelle il renvoie, vous la changez quand vous voulez.
+
+## Trois façons de publier un lien {#link-kinds}
+
+Chacune a sa page dans l'interface d'administration :
+
+- **Une URL fixe** : vous choisissez le chemin, `/redirect/<chemin>`, par exemple `/redirect/promo`, avec un dernier
+  jour de validité si vous voulez.
+- **Un lien court, à la TinyURL** : une NanoURL n'a qu'un nom et une cible. Elle répond sous
+  `/redirect/NanoURL/<nom>` et surtout à son lien court, `/links/<id>`, fait de 8 lettres et chiffres. C'est ce
+  lien court qu'il vaut mieux partager : il reste le même si vous renommez la NanoURL.
+- **Un QR code** : il se crée comme une NanoURL, sous `/redirect/QRcodes/<nom>`, avec un dessin à votre goût et un
+  logo si vous voulez. Le code imprimé contient le lien court, pas la cible.
+
+Chaque lien, quelle que soit sa façon, répond aussi à son lien court `/links/<id>`. Voir
+[Liens, NanoURL et QR codes](links-nanourls-qrcodes.md).
+
+## Ce qui change reste à un seul endroit {#one-place}
+
+Un QR code imprimé ou un lien déjà envoyé ne se corrige plus. Quand la cible change, vous la modifiez une seule fois,
+dans Redirect, et tout ce qui a été imprimé ou partagé continue de marcher.
 
 Redirect ne sert jamais la cible et ne la relaie pas : il répond seulement « allez là-bas ». Tout tient dans une
 application Python, un conteneur et une base SQLite.
-
-## Les trois sortes de liens {#link-kinds}
-
-- **Liens** : un chemin choisi à la main, `/redirect/<chemin>`, avec un dernier jour de validité si vous voulez.
-- **NanoURL** : le chemin vient du nom, `/redirect/NanoURL/<nom>`.
-- **QR codes** : comme une NanoURL, sous `/redirect/QRcodes/<nom>`, avec un dessin à votre goût et un logo si vous
-  voulez. Le code imprimé contient le lien court, pas la cible.
-
-Chaque lien répond aussi à son lien court, `/links/<id>`. Voir
-[Liens, NanoURL et QR codes](links-nanourls-qrcodes.md).
 
 ## Avec Cloudflare {#with-cloudflare}
 
