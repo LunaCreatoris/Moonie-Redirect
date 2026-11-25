@@ -57,10 +57,10 @@ En cas de doute, **Compare with Cloudflare** montre les écarts entre l'instance
 ## Le webhook n'envoie rien {#webhook-silent}
 
 - **« This address is closed »** : l'adresse est une adresse de bouclage, link-local, multicast ou réservée. Utilisez
-  le nom du service sur le réseau Docker, par exemple `http://n8n:5678/...`, ou une adresse du réseau local.
+  le nom du service sur le réseau Docker, par exemple `http://receiver:8080/...`, ou une adresse du réseau local.
 - **« Webhook disabled »** : le récepteur a répondu `410 Gone`. Les événements attendent ; **Save** rallume le webhook.
-- **Le récepteur refuse la signature** : il doit la vérifier sur les octets bruts du corps. Dans n8n, activez l'option
-  Raw Body du nœud Webhook.
+- **Le récepteur refuse la signature** : il doit la vérifier sur les octets bruts du corps, avant de les lire comme
+  du JSON : un JSON lu puis réécrit n'a plus forcément les mêmes octets.
 
 ## Plus d'aide {#more-help}
 

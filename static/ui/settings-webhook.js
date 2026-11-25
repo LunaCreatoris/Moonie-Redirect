@@ -1,7 +1,7 @@
 // Source: Moonie Redirect 7.0.1 admin UI, ui/pages/webhook.js and ui/pages/keys.js, trimmed: replies
 // routed to plugins, the incoming calls card, base events, keys made by keys (their parent and revoke_children), the
 // saved-but-unread notice (a save answers the new state). Added: the deliveries waiting, the token file as a fixed key.
-// The Webhook & API tab: n8n's connection, the events it gets, the last delivery, then the API keys. The signing secret is
+// The Webhook & API tab: the webhook's receiver, the events it gets, the last delivery, then the API keys. The signing secret is
 // write-only: the page never receives it, and sends it only when something was typed.
 
 import {

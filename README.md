@@ -224,7 +224,7 @@ value, for a path under `.well-known` on a host, or for the host this instance i
 - **Security**: where the admin password comes from (`Set here`, `From file`, `Not set`), **Change password** (the
   current one, then a new one of 12 to 1024 characters; every other session ends, this one stays) and **End all
   sessions** (you included).
-- **Webhook & API**: the n8n webhook (URL, signing secret, events, **Send test**, the last delivery and what waits),
+- **Webhook & API**: the webhook (URL, signing secret, events, **Send test**, the last delivery and what waits),
   then the API keys: **New key** (a name, scopes, your password), whose secret is shown once, and **Revoke**. The token
   file shows as a fixed `Token file` row with every scope: remove the file and restart to revoke it.
 - **Cloudflare**: the API token (**Replace**, **Clear**), checked by Cloudflare before it is kept (refused, nothing is
@@ -267,12 +267,12 @@ key. A key file named but unreadable or malformed stops the start.
   back to its file, else goes off; the webhook sends nothing and its events wait. Enter the Cloudflare token and the
   webhook's secret again. There is no command to change the key (`ROADMAP.md`).
 
-### The n8n webhook
+### The webhook
 
 Each link, NanoURL or QR code created, changed or deleted through the API (the pages or a key) sends the event ticked,
 7.0.1's names: `redirect.link.created`, `redirect.link.updated`, `redirect.link.deleted`. The body is
 `{"id", "event", "source": "redirect", "at", "data"}`, `data` holding `id, kind, slug, name, target, http_status,
-expires_on, address, updated_at` (never the design), at most 64 KiB. The headers are 7.0.1's, so its n8n workflows keep
+expires_on, address, updated_at` (never the design), at most 64 KiB. The headers are 7.0.1's, so receivers written for it keep
 working:
 
 | Header | Holds |
@@ -283,8 +283,7 @@ working:
 | `X-Moonie-Signature` | `sha256=` and the hex HMAC-SHA256, keyed with the secret, of `<event id>.<timestamp>.` followed by the body's bytes |
 | `User-Agent` | `moonie-redirect/<version>` |
 
-A receiver checks it on the raw body's bytes, before parsing them (in n8n, turn the Webhook node's Raw Body option
-on, as re-encoding the JSON may change its bytes), and also refuses a timestamp more than a few minutes off:
+A receiver checks it on the raw body's bytes, before parsing them (re-encoding the JSON may change its bytes), and also refuses a timestamp more than a few minutes off:
 
 ```js
 const crypto = require('crypto')
@@ -307,7 +306,7 @@ function signedByRedirect(secret, headers, body) {
   172.16/12, 192.168/16, 100.64/10, fc00::/7) are open; loopback, `localhost`, link-local (so the cloud metadata
   address), multicast and reserved addresses are closed, also when an IPv6 form carries them. A numeric host is judged
   when saved (`This address is closed`); a name at each attempt, on every address it resolves to, and the connection goes
-  to the address judged. `http://n8n:5678/...` on a Docker network passes. TLS is checked against the system's
+  to the address judged. `http://receiver:8080/...` on a Docker network passes. TLS is checked against the system's
   authorities, with no way to turn it off. The logs name the receiver's origin, never its path or query, which may hold
   a token.
 - The secret is 16 to 256 characters, write-only: the page never shows it again; an empty field keeps it.
@@ -364,7 +363,7 @@ Every recipe runs in a pinned image, the same on macOS, Linux and Windows. `just
   only on a green local `just ci` (D33).
 - `just goldens [WALK ...]`: capture the GUI goldens into `tests/goldens` (walks `frame`, `links`, `nanourls`,
   `qrcodes`, `address`, `settings`, `settings-cloudflare`; the last three on the in-memory Cloudflare of the tests,
-  `settings` with an n8n receiver on loopback), in the pinned Playwright image on `linux/arm64`, from the real app on a
+  `settings` with a webhook receiver on loopback), in the pinned Playwright image on `linux/arm64`, from the real app on a
   fixed clock and fixed draws. `just goldens-check` fails when one byte differs from the committed ones;
   `just goldens-stability` captures twice and compares. A UI change regenerates them, and the images are looked at
   before they are committed.

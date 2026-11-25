@@ -1,6 +1,6 @@
 ---
 title: Les réglages
-description: Le mot de passe et les sessions, le webhook n8n, les clés d'API et leurs portées, le jeton Cloudflare.
+description: Le mot de passe et les sessions, le webhook, les clés d'API et leurs portées, le jeton Cloudflare.
 order: 4
 ---
 
@@ -26,11 +26,11 @@ Un mot de passe oublié se remet à zéro depuis l'hôte : voir [Dépannage](tro
 
 ## Le webhook {#webhook}
 
-Le webhook envoie un POST signé à une adresse de votre choix, un workflow n8n par exemple, chaque fois qu'un lien, une
-NanoURL ou un QR code est créé, modifié ou supprimé, depuis les pages ou par une clé d'API.
+Le webhook envoie un POST signé à une adresse HTTP de votre choix, le récepteur, chaque fois qu'un lien, une NanoURL
+ou un QR code est créé, modifié ou supprimé, depuis les pages ou par une clé d'API.
 
-1. Dans **Webhook & API**, donnez l'adresse, par exemple `http://n8n:5678/webhook/links-changed` sur un réseau Docker
-   partagé.
+1. Dans **Webhook & API**, donnez l'adresse du récepteur, par exemple `http://receiver:8080/links-changed` sur un
+   réseau Docker partagé.
 2. Donnez un secret de signature de 16 à 256 caractères. Il n'est plus jamais affiché ; un champ laissé vide garde
    l'ancien.
 3. Cochez les événements, enregistrez, puis **Send test**.
@@ -40,7 +40,7 @@ sont refusées. Un envoi qui échoue est retenté plusieurs fois ; la page montr
 
 Le récepteur vérifie la signature sur les octets bruts du corps. Les en-têtes et un exemple de vérification sont dans
 la section
-[The n8n webhook](https://github.com/LunaCreatoris/Moonie-Redirect/blob/main/README.md#the-n8n-webhook) du README.
+[The webhook](https://github.com/LunaCreatoris/Moonie-Redirect/blob/main/README.md#the-webhook) du README.
 
 ## Les clés d'API {#api-keys}
 

@@ -55,10 +55,10 @@ When in doubt, **Compare with Cloudflare** shows the gaps between the instance a
 ## The webhook sends nothing {#webhook-silent}
 
 - **"This address is closed"**: the address is a loopback, link-local, multicast or reserved one. Use the service's
-  name on the Docker network, for example `http://n8n:5678/...`, or an address on the local network.
+  name on the Docker network, for example `http://receiver:8080/...`, or an address on the local network.
 - **"Webhook disabled"**: the receiver answered `410 Gone`. The events wait; **Save** turns the webhook back on.
-- **The receiver refuses the signature**: it must check it on the body's raw bytes. In n8n, turn on the Webhook node's
-  Raw Body option.
+- **The receiver refuses the signature**: it must check it on the body's raw bytes, before parsing them as JSON: JSON
+  parsed and written again may not keep the same bytes.
 
 ## More help {#more-help}
 

@@ -1,6 +1,6 @@
 ---
 title: Settings
-description: The password and the sessions, the n8n webhook, API keys and their scopes, the Cloudflare token.
+description: The password and the sessions, the webhook, API keys and their scopes, the Cloudflare token.
 order: 4
 ---
 
@@ -25,10 +25,11 @@ A forgotten password is reset from the host: see [Troubleshooting](troubleshooti
 
 ## The webhook {#webhook}
 
-The webhook sends a signed POST to an address of your choice, an n8n workflow for example, each time a link, a NanoURL
-or a QR code is created, changed or deleted, from the pages or with an API key.
+The webhook sends a signed POST to an HTTP address of your choice, the receiver, each time a link, a NanoURL or a QR
+code is created, changed or deleted, from the pages or with an API key.
 
-1. In **Webhook & API**, give the address, for example `http://n8n:5678/webhook/links-changed` on a shared Docker network.
+1. In **Webhook & API**, give the receiver's address, for example `http://receiver:8080/links-changed` on a shared
+   Docker network.
 2. Give a signing secret of 16 to 256 characters. It is never shown again; a field left empty keeps the old one.
 3. Tick the events, save, then **Send test**.
 
@@ -36,7 +37,7 @@ Addresses on the local network are allowed. Loopback (`localhost`), link-local, 
 refused. A delivery that fails is tried again several times; the page shows the last delivery and what is waiting.
 
 The receiver checks the signature on the body's raw bytes. The headers and an example check are in the
-[The n8n webhook](https://github.com/LunaCreatoris/Moonie-Redirect/blob/main/README.md#the-n8n-webhook) section of the
+[The webhook](https://github.com/LunaCreatoris/Moonie-Redirect/blob/main/README.md#the-webhook) section of the
 README.
 
 ## API keys {#api-keys}

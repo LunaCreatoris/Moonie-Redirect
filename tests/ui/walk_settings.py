@@ -2,7 +2,7 @@
 The domains under the Cloudflare settings have their own walk, walk_settings_cloudflare.py.
 
 The webhook reaches a receiver on loopback through the Webhook constructor's resolver and allow-list, as its tests
-do: `n8n:5678` resolves to that receiver, so the address on screen never shows its free port. Cloudflare is the
+do: `receiver:8080` resolves to that receiver, so the address on screen never shows its free port. Cloudflare is the
 in-memory fake of the tests. The new key's secret and every id are fixed, and the clocks are the walk's, so two runs
 write the same bytes. Rows no screen can make (a delivery that failed, a webhook a 410 turned off, a token sealed under
 another key) are written as fixtures."""
@@ -28,8 +28,8 @@ import app as redirect  # noqa: E402
 
 PAGE = "/admin/settings"
 NEW_PASSWORD = "a much longer admin password"
-HOOK_URL = "http://n8n:5678/webhook/test-hook"
-HOOK_SECRET = "n8n-shared-signing-secret"
+HOOK_URL = "http://receiver:8080/test-hook"
+HOOK_SECRET = "receiver-shared-signing-secret"
 CF_TOKEN = "settings-token-abcdefghijklmnopqrstuvwxyz0123"
 # What `new_api_key` draws in this walk: the secret is shown once, so it must read the same on every run
 KEY_SECRET = "mrk_G0ldenKeyShownOnceAbcdefghijklmnopqrstuvwxy"
@@ -48,7 +48,7 @@ FAILED_DELIVERY = {
 
 
 class Receiver:
-    """n8n on loopback: answers each POST with `status`, a JSON body when it is a 2xx."""
+    """A webhook receiver on loopback: answers each POST with `status`, a JSON body when it is a 2xx."""
 
     def __init__(self) -> None:
         self.status = 200
@@ -73,7 +73,7 @@ class Receiver:
         self.thread.start()
 
     def resolve(self, host, port, type=0, **_kwargs):
-        """Every name is the receiver, whatever port the URL says: the screen keeps n8n's usual address."""
+        """Every name is the receiver, whatever port the URL says: the screen keeps the URL's address."""
         return [(socket.AF_INET, socket.SOCK_STREAM, 6, "", ("127.0.0.1", self.server.server_address[1]))]
 
     def close(self) -> None:
@@ -143,7 +143,7 @@ def drop_setting(live: Live, key: str) -> None:
 
 
 def waiting_rows(live: Live, count: int) -> None:
-    """Deliveries waiting for their next attempt, as an n8n that answers 503 leaves them."""
+    """Deliveries waiting for their next attempt, as a receiver that answers 503 leaves them."""
     with sqlite3.connect(live.db) as conn:
         for index in range(count):
             conn.execute(
@@ -296,7 +296,7 @@ def keys(live: Live) -> None:
     page = live.page
     page.locator("#page .keys-new").click()
     box = dialog(page)
-    box.locator("input[name='name']").fill("n8n workflows")
+    box.locator("input[name='name']").fill("automation")
     box.locator(".keys-scope", has_text="redirect:links.write").click()
     box.locator(".keys-scope", has_text="redirect:qrcodes.read").click()
     expect(box.locator("input[name='scopes']")).to_have_value("redirect:links.write, redirect:qrcodes.read")
@@ -315,14 +315,14 @@ def keys(live: Live) -> None:
 
     box.locator(".keys-done").click()
     expect(dialog(page)).to_have_count(0)
-    expect(notice(page)).to_have_text("Key n8n workflows created.")
+    expect(notice(page)).to_have_text("Key automation created.")
 
-    row = page.locator("#page .keys-card [role='row']:has([role='cell'])", has_text="n8n workflows")
+    row = page.locator("#page .keys-card [role='row']:has([role='cell'])", has_text="automation")
     row.locator(".btn-danger").click()
-    expect(dialog(page).locator(".card-title")).to_have_text("Revoke n8n workflows?")
+    expect(dialog(page).locator(".card-title")).to_have_text("Revoke automation?")
     live.shot("keys-revoke-confirm", full_page=False)
     dialog(page).locator(".btn-danger").click()
-    expect(notice(page)).to_have_text("Key n8n workflows revoked.")
+    expect(notice(page)).to_have_text("Key automation revoked.")
 
     page.locator("#page .webhook-clear").click()
     expect(dialog(page).locator(".card-title")).to_have_text("Delete this webhook?")

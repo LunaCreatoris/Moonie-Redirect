@@ -144,7 +144,7 @@ export function statusText(status, t) {
   return Number.isInteger(status) ? t('webhook.http_status', { status }) : t('webhook.no_answer')
 }
 
-// The texts of the events this app sends, by name: 7.0.1's names, so that old n8n workflows match
+// The texts of the events this app sends, by name: 7.0.1's names, so that receivers written for 7.0.1 match
 const EVENT_LABELS = {
   'redirect.link.created': 'webhook.event_link_created',
   'redirect.link.updated': 'webhook.event_link_updated',
