@@ -1,17 +1,35 @@
 ---
 title: Upgrading
 description: Move to a new version, bring over the links and Cloudflare hosts of an earlier install, and roll back.
-order: 5
+order: 6
 ---
 
 ## A new version {#new-version}
 
+From the repository's folder, with Docker Compose:
+
 ```sh
 git pull
-just run
+docker compose up -d --build
 ```
 
-`just run` rebuilds the image and restarts the stack. The database is migrated on start, with no step to run.
+Behind a reverse proxy, it is `docker compose -f compose.yml -f compose.proxy.yml up -d --build`, unless `.env` already
+gives `COMPOSE_FILE`. Docker Compose rebuilds the image and recreates the container. With just, it is `git pull` then
+`just run`, or `just run-proxy`. Without
+Git, download the archive again and replace the repository's files, keeping `.env` and `secrets/`.
+
+As a Portainer stack, update the repository on the host and rebuild the image, as on the
+[first start](getting-started.md#with-portainer):
+
+```sh
+git pull
+docker build -t moonie-redirect:local .
+```
+
+Then, in Portainer, open the stack and run **Update the stack**: the container is recreated on the new image. Leave
+the option that pulls the image from a registry (**Re-pull image**) off: no image is published.
+
+The database is migrated on start, with no step to run.
 
 ### From an earlier install {#earlier-install}
 
@@ -35,7 +53,15 @@ included: printed QR codes keep working.
 4. Run the import:
 
 ```sh
-just import-v7 path/to/moonie.db
+docker compose run --rm --no-deps -v /srv/import/moonie.db:/import/moonie.db:ro moonie python app.py import-v7 /import/moonie.db
+```
+
+The copy's path, here `/srv/import/moonie.db`, is absolute. With just, it is `just import-v7 path/to/moonie.db`. For a
+Portainer stack, run the image on the stack's volume, which `docker volume ls` names, for example
+`moonie-redirect_data` for a `moonie-redirect` stack:
+
+```sh
+docker run --rm -v moonie-redirect_data:/data -v /srv/import/moonie.db:/import/moonie.db:ro -e MOONIE_REDIRECT_PUBLIC_BASE_URL=https://redirect.example.test moonie-redirect:local python app.py import-v7 /import/moonie.db
 ```
 
 The import opens the file read-only, adds every row whose id and path are free, and prints how many rows it brought

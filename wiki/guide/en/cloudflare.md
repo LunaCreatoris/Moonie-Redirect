@@ -1,7 +1,7 @@
 ---
 title: Cloudflare
 description: Make a link answer on a name in your Cloudflare zones, served by Cloudflare with no request reaching the instance.
-order: 3
+order: 4
 ---
 
 ## How it works {#how-it-works}

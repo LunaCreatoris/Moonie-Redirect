@@ -8,6 +8,8 @@ node_image := "node:22.21.1-slim@sha256:25b3eb23a00590b7499f2a2ce939322727fcce1b
 # The goldens are captured in this Chromium, pinned by tag and digest, on one platform, linux/arm64
 playwright_image := "mcr.microsoft.com/playwright/python:v1.52.0-noble@sha256:a1d2b48b65f41f34e5e1d7690f385f1376397b7208691cba359e4078edbf86cb"
 platform := "linux/arm64"
+# compose.yml is checked by this Docker Compose, pinned by tag and digest (multi-platform index)
+compose_image := "docker:27.5.1-cli@sha256:851f91d241214e7c6db86513b270d58776379aacc5eb9c4a87e5b47115e3065c"
 in_browser := "docker run --rm --platform " + platform + " -v \"" + justfile_directory() + "\":/src -w /src -e PIP_ROOT_USER_ACTION=ignore -e PIP_DISABLE_PIP_VERSION_CHECK=1 -e PYTHONDONTWRITEBYTECODE=1 -e PYTHONPATH=/tmp/deps " + playwright_image + " sh -c"
 # The app's packages and the harness's, then the harness: what every goldens recipe starts with
 harness := "pip install -q --no-deps --target /tmp/deps -r requirements.txt -r tests/ui/requirements.txt && python tests/ui/screenshots.py"
@@ -41,13 +43,26 @@ format:
 guide-check:
     @docker run --rm -v "{{justfile_directory()}}":/src:ro {{private_words_mount}} -w /src -e PIP_ROOT_USER_ACTION=ignore -e PIP_DISABLE_PIP_VERSION_CHECK=1 -e PYTHONDONTWRITEBYTECODE=1 {{python_image}} sh -c "pip install -q {{markdown_pin}} && python tools/guide_check.py wiki/guide --repo Moonie-Redirect {{private_words_option}}"
 
+# Check that both modes deploy with plain Docker Compose, from the defaults of .env.example: LAN mode (compose.yml) with only the public address, publishing 8080; proxy mode (compose.proxy.yml over it) with the proxy's host too, publishing nothing
+compose-check:
+    docker run --rm -v "{{justfile_directory()}}":/src:ro -w /src -e MOONIE_REDIRECT_PUBLIC_BASE_URL=http://192.0.2.10:8080 {{compose_image}} sh -c 'docker compose --env-file .env.example config --quiet && docker compose --env-file .env.example config | grep -q "published: \"8080\""'
+    docker run --rm -v "{{justfile_directory()}}":/src:ro -w /src -e MOONIE_REDIRECT_PUBLIC_BASE_URL=https://redirect.example.test -e MOONIE_REDIRECT_HOST=redirect.example.test {{compose_image}} sh -c 'docker compose --env-file .env.example -f compose.yml -f compose.proxy.yml config --quiet && ! docker compose --env-file .env.example -f compose.yml -f compose.proxy.yml config | grep -q "published:"'
+
 # Run the tests of the front's logic (static/ui) under Node
 test-js:
     docker run --rm -v "{{justfile_directory()}}":/src -w /src {{node_image}} sh -c "node --test tests/js/*.test.mjs"
 
-# Capture the goldens into tests/goldens: every walk, or the ones named (frame links nanourls qrcodes address settings settings-cloudflare)
+# Capture the goldens into tests/goldens: every walk, or the ones named (frame links nanourls qrcodes address settings settings-cloudflare); the guide's screenshots follow
 goldens *WALKS:
-    {{in_browser}} "{{harness}} --out tests/goldens {{WALKS}}"
+    {{in_browser}} "{{harness}} --out tests/goldens {{WALKS}} && python tools/guide_images.py copy"
+
+# Copy the guide's screenshots from tests/goldens into wiki/guide/img, as tools/guide_images.py maps them
+guide-images:
+    {{in_python}} "python tools/guide_images.py copy"
+
+# Check that each guide screenshot is its golden byte for byte, has a valid name and weight, and is shown in fr and en
+guide-images-check:
+    {{in_python}} "python tools/guide_images.py check"
 
 # Capture every golden afresh and fail if one byte differs from tests/goldens (new, missing or changed)
 goldens-check:
@@ -57,16 +72,20 @@ goldens-check:
 goldens-stability:
     {{in_browser}} "{{harness}} --out /tmp/first && python tests/ui/screenshots.py --out /tmp/second && python tests/ui/compare.py /tmp/first /tmp/second"
 
-# The merge gate, and the only CI (D33): lint, check the guide, test the app and the front, check the goldens
-ci: lint guide-check test test-js goldens-check
+# The merge gate, and the only CI (D33): lint, check the guide, its screenshots and compose.yml, test the app and the front, check the goldens
+ci: lint guide-check guide-images-check compose-check test test-js goldens-check
 
 # Build the image
 build:
     docker build -t {{image}} .
 
-# Run the stack from compose.yml with .env (builds the image first)
-run: build
-    docker compose up -d
+# Run the stack in LAN mode (compose.yml) with .env, building the image afresh
+run:
+    docker compose up -d --build
+
+# Run the stack behind a reverse proxy (compose.proxy.yml over compose.yml) with .env, building the image afresh
+run-proxy:
+    docker compose -f compose.yml -f compose.proxy.yml up -d --build
 
 # Re-pin requirements*.txt to the latest versions (needs uv on the host)
 lock:

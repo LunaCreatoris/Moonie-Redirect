@@ -1,17 +1,35 @@
 ---
 title: Mettre à jour
 description: Passer à une nouvelle version, reprendre les liens et les noms Cloudflare d'une installation antérieure, et revenir en arrière.
-order: 5
+order: 6
 ---
 
 ## Une nouvelle version {#new-version}
 
+Depuis le dossier du dépôt, avec Docker Compose :
+
 ```sh
 git pull
-just run
+docker compose up -d --build
 ```
 
-`just run` reconstruit l'image et relance la pile. La base est migrée au démarrage, sans étape à lancer.
+Derrière un reverse proxy, c'est `docker compose -f compose.yml -f compose.proxy.yml up -d --build`, sauf si `.env`
+donne déjà `COMPOSE_FILE`. Docker Compose reconstruit l'image et recrée le conteneur. Avec just, c'est `git pull`
+puis `just run`, ou `just run-proxy`. Sans Git,
+téléchargez de nouveau l'archive et remplacez les fichiers du dépôt, en gardant `.env` et `secrets/`.
+
+En pile Portainer, mettez à jour le dépôt sur l'hôte et reconstruisez l'image, comme au
+[premier lancement](getting-started.md#with-portainer) :
+
+```sh
+git pull
+docker build -t moonie-redirect:local .
+```
+
+Puis, dans Portainer, ouvrez la pile et lancez **Update the stack** : le conteneur est recréé sur la nouvelle image.
+Laissez éteinte l'option qui retire l'image d'un registre (**Re-pull image**) : aucune image n'est publiée.
+
+La base est migrée au démarrage, sans étape à lancer.
 
 ### Depuis une installation antérieure {#earlier-install}
 
@@ -36,7 +54,15 @@ marcher.
 4. Lancez l'import :
 
 ```sh
-just import-v7 chemin/vers/moonie.db
+docker compose run --rm --no-deps -v /srv/import/moonie.db:/import/moonie.db:ro moonie python app.py import-v7 /import/moonie.db
+```
+
+Le chemin de la copie, ici `/srv/import/moonie.db`, est absolu. Avec just, c'est
+`just import-v7 chemin/vers/moonie.db`. Pour une pile Portainer, lancez l'image sur le volume de la pile, que
+`docker volume ls` nomme, par exemple `moonie-redirect_data` pour une pile `moonie-redirect` :
+
+```sh
+docker run --rm -v moonie-redirect_data:/data -v /srv/import/moonie.db:/import/moonie.db:ro -e MOONIE_REDIRECT_PUBLIC_BASE_URL=https://redirect.example.test moonie-redirect:local python app.py import-v7 /import/moonie.db
 ```
 
 L'import ouvre le fichier en lecture seule, ajoute chaque ligne dont l'identifiant et le chemin sont libres, et affiche

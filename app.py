@@ -52,7 +52,7 @@ from cryptography.exceptions import InvalidTag
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from flask import Flask, Response, abort, g, jsonify, redirect, render_template, request, session, url_for
 
-VERSION = "9.3.1"
+VERSION = "9.4.0"
 log = logging.getLogger("moonie-redirect")
 
 TABLE = "redirect_links"

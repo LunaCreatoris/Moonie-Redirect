@@ -32,7 +32,8 @@ def test_the_guide_mark_is_the_app_mark():
 
 
 def test_every_language_has_the_same_pages():
-    folders = [folder for folder in GUIDE.iterdir() if folder.is_dir()]
+    # img/ is shared by the languages, not one of them
+    folders = [folder for folder in GUIDE.iterdir() if folder.is_dir() and folder.name != "img"]
     pages = {folder.name: sorted(page.name for page in folder.glob("*.md")) for folder in folders}
     assert set(pages) == {"fr", "en"}
     assert pages["fr"] == pages["en"]

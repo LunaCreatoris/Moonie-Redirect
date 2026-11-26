@@ -1,0 +1,24 @@
+# Reverse-proxy mode (D35), laid over compose.yml:
+#   docker compose -f compose.yml -f compose.proxy.yml up -d --build      (or: just run-proxy)
+# The host's port is dropped: the proxy reaches the container on its own Docker network, created outside this stack,
+# at moonie-redirect:8080 (the alias below). The labels are Traefik's, as an example; any other proxy ignores them and
+# is pointed at that address instead. MOONIE_REDIRECT_PUBLIC_BASE_URL is then the proxy's public address, in https.
+services:
+  moonie:
+    ports: !reset []
+    networks:
+      proxy:
+        aliases: [moonie-redirect]
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: ${MOONIE_REDIRECT_PROXY_NETWORK:-proxy}
+      # The public host, the same as the one of MOONIE_REDIRECT_PUBLIC_BASE_URL
+      traefik.http.routers.moonie-redirect.rule: Host(`${MOONIE_REDIRECT_HOST:?set MOONIE_REDIRECT_HOST in .env, the public host}`)
+      traefik.http.routers.moonie-redirect.entrypoints: ${MOONIE_REDIRECT_ENTRYPOINT:-websecure}
+      traefik.http.services.moonie-redirect.loadbalancer.server.port: "8080"
+
+networks:
+  # The proxy's network, created outside this stack (docker network create proxy, or the one Traefik already uses)
+  proxy:
+    external: true
+    name: ${MOONIE_REDIRECT_PROXY_NETWORK:-proxy}

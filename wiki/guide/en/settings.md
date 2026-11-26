@@ -1,7 +1,7 @@
 ---
 title: Settings
 description: The password and the sessions, the webhook, API keys and their scopes, the Cloudflare token.
-order: 4
+order: 5
 ---
 
 ## The Settings page {#settings-page}

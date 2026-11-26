@@ -1,12 +1,12 @@
 ---
 title: Troubleshooting
 description: Common problems, from an instance that does not start to a Cloudflare link in error, and what fixes them.
-order: 6
+order: 7
 ---
 
 ## The instance does not start {#does-not-start}
 
-`docker compose logs moonie` gives the reason in one line.
+`docker compose logs moonie` gives the reason in one line; in Portainer, the container's **Logs** page does.
 
 - **The links' address is missing**: Docker Compose stops on `set MOONIE_REDIRECT_PUBLIC_BASE_URL in .env`. Give
   it in `.env`, see [Getting started](getting-started.md#public-url).
@@ -16,16 +16,27 @@ order: 6
   user 10001.
 - **`the API token must be at least 32 characters`**: the `api_token` file is too short. Generate a new one, as in
   [Getting started](getting-started.md#secrets).
+- **`pull access denied for moonie-redirect`**, in Portainer: the image is not built on the host, and no registry
+  holds it. Build it there first, as in [Getting started](getting-started.md#with-portainer).
+- **`network proxy declared as external, but could not be found`**, behind a reverse proxy: create it, or give the
+  proxy's network in `MOONIE_REDIRECT_PROXY_NETWORK`. See [Behind a reverse proxy](getting-started.md#behind-proxy).
+  On the LAN's IP, run `compose.yml` alone, without `compose.proxy.yml`.
+- **`set MOONIE_REDIRECT_HOST in .env`**: `compose.proxy.yml` needs the proxy's public name. Give it in `.env`.
+- **`port is already allocated`** or **`address already in use`**: the host's port 8080 is taken. Give another one
+  in `MOONIE_REDIRECT_PORT`, and change the links' address to match.
 
 ## Lost password {#lost-password}
 
 From the repository's folder, on the host:
 
 ```sh
-just reset-password
+docker compose exec moonie python app.py reset-password
 ```
 
-The recipe drops the password set in **Settings** and ends every session: the password from `secrets/password` counts
+With just, it is `just reset-password`. In a Portainer stack, open the container, then **Console**, and run
+`python app.py reset-password`.
+
+The command drops the password set in **Settings** and ends every session: the password from `secrets/password` counts
 again. Sign in with it, then change it.
 
 ## Sign-in answers "Too many attempts" {#too-many-attempts}

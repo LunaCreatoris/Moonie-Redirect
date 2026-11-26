@@ -1,11 +1,17 @@
-# moonie-redirect behind Traefik, on the LAN. Values come from .env (see .env.example), the store key and the password
-# from files. Settings (/admin/settings) set the password, API keys, the webhook and the Cloudflare token in the
-# database, which wins over the files: the password, API token and Cloudflare token files are fallbacks. No port is
-# published: Traefik reaches the container on the `proxy` network.
+# moonie-redirect, deployed with plain Docker Compose (or as a Portainer stack) or with `just run`: compose builds the
+# image from this repository. Values come from .env (see .env.example), the store key and the password from files.
+# Settings (/admin/settings) set the password, API keys, the webhook and the Cloudflare token in the database, which
+# wins over the files: the password, API token and Cloudflare token files are fallbacks.
+#
+# Two modes (D35). This file alone is LAN mode: the app answers in plain http on the host's port, with no reverse proxy
+# and no network to create first. Behind a reverse proxy, lay compose.proxy.yml over it:
+#   docker compose -f compose.yml -f compose.proxy.yml up -d --build      (or: just run-proxy)
 name: moonie-redirect
 
 services:
   moonie:
+    # Built from this repository's Dockerfile, and tagged with this name, on the first `docker compose up`
+    build: .
     image: ${MOONIE_REDIRECT_IMAGE:-moonie-redirect:local}
     read_only: true
     cap_drop: [ALL]
@@ -32,34 +38,27 @@ services:
       # - cloudflare_token
     volumes:
       - data:/data
-    networks: [proxy]
-    # Traefik: uncomment and set the router's rule to the public host (the same as MOONIE_REDIRECT_PUBLIC_BASE_URL)
-    # labels:
-    #   traefik.enable: "true"
-    #   traefik.http.routers.moonie-redirect.rule: Host(`${MOONIE_REDIRECT_HOST}`)
-    #   traefik.http.routers.moonie-redirect.entrypoints: ${MOONIE_REDIRECT_ENTRYPOINT:-websecure}
-    #   traefik.http.services.moonie-redirect.loadbalancer.server.port: "8080"
+    # LAN mode: the host's port, on every address of the host by default; 127.0.0.1 keeps it for a proxy on the host.
+    # compose.proxy.yml drops it
+    ports:
+      - "${MOONIE_REDIRECT_BIND:-0.0.0.0}:${MOONIE_REDIRECT_PORT:-8080}:8080"
 
 volumes:
   # The SQLite database, /data/redirect.db
   data: {}
 
-networks:
-  # Traefik's network, created outside this stack
-  proxy:
-    external: true
-    name: ${MOONIE_REDIRECT_PROXY_NETWORK:-proxy}
-
+# The files sit in ./secrets beside this file, or in the folder MOONIE_REDIRECT_SECRETS_DIR names (an absolute path on
+# the host for a Portainer stack, which does not see this repository's relative paths)
 secrets:
-  # 64 hexadecimal characters (`just store-key > secrets/store_key`), readable by uid 10001; back it up apart
+  # 64 hexadecimal characters (`openssl rand -hex 32 > secrets/store_key`), readable by uid 10001; back it up apart
   store_key:
-    file: ./secrets/store_key
+    file: ${MOONIE_REDIRECT_SECRETS_DIR:-./secrets}/store_key
   # The admin password, on one line, readable by uid 10001 (the app's user); a password set in Settings wins over it
   password:
-    file: ./secrets/password
+    file: ${MOONIE_REDIRECT_SECRETS_DIR:-./secrets}/password
   # A random token of 32 characters or more, readable by uid 10001: a key with every scope, beside those made in Settings
   api_token:
-    file: ./secrets/api_token
+    file: ${MOONIE_REDIRECT_SECRETS_DIR:-./secrets}/api_token
   # Optional: a Cloudflare API token, readable by uid 10001. Left commented, as compose stops on a missing file
   # cloudflare_token:
-  #   file: ./secrets/cloudflare_token
+  #   file: ${MOONIE_REDIRECT_SECRETS_DIR:-./secrets}/cloudflare_token

@@ -1,7 +1,7 @@
 ---
 title: Links, NanoURLs and QR codes
 description: Create a link, a NanoURL or a QR code, change its target without breaking what was shared, and know what it answers.
-order: 2
+order: 3
 ---
 
 ## The pages {#pages}

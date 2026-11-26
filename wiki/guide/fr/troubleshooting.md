@@ -1,12 +1,12 @@
 ---
 title: Dépannage
 description: Les problèmes courants, de l'instance qui ne démarre pas au lien Cloudflare en erreur, et ce qui les règle.
-order: 6
+order: 7
 ---
 
 ## L'instance ne démarre pas {#does-not-start}
 
-`docker compose logs moonie` donne la raison en une ligne.
+`docker compose logs moonie` donne la raison en une ligne ; dans Portainer, la page **Logs** du conteneur aussi.
 
 - **L'adresse des liens manque** : Docker Compose s'arrête sur `set MOONIE_REDIRECT_PUBLIC_BASE_URL in .env`.
   Donnez-la dans `.env`, voir [Démarrer](getting-started.md#public-url).
@@ -16,16 +16,28 @@ order: 6
   lisible par l'utilisateur 10001.
 - **`the API token must be at least 32 characters`** : le fichier `api_token` est trop court. Tirez-en un nouveau, comme
   dans [Démarrer](getting-started.md#secrets).
+- **`pull access denied for moonie-redirect`**, dans Portainer : l'image n'est pas construite sur l'hôte, et aucun
+  registre ne la tient. Construisez-la d'abord sur l'hôte, comme dans [Démarrer](getting-started.md#with-portainer).
+- **`network proxy declared as external, but could not be found`**, derrière un reverse proxy : créez ce réseau, ou
+  donnez celui du proxy dans `MOONIE_REDIRECT_PROXY_NETWORK`. Voir
+  [Derrière un reverse proxy](getting-started.md#behind-proxy). Sur l'IP du LAN, lancez `compose.yml` seul, sans
+  `compose.proxy.yml`.
+- **`set MOONIE_REDIRECT_HOST in .env`** : `compose.proxy.yml` demande le nom public du proxy. Donnez-le dans `.env`.
+- **`port is already allocated`** ou **`address already in use`** : le port 8080 de l'hôte est pris. Donnez-en un
+  autre dans `MOONIE_REDIRECT_PORT`, et changez l'adresse des liens en conséquence.
 
 ## Mot de passe perdu {#lost-password}
 
 Depuis le dossier du dépôt, sur l'hôte :
 
 ```sh
-just reset-password
+docker compose exec moonie python app.py reset-password
 ```
 
-La recette efface le mot de passe réglé dans **Settings** et ferme toutes les sessions : le mot de passe de
+Avec just, c'est `just reset-password`. Dans une pile Portainer, ouvrez le conteneur, puis **Console**, et lancez
+`python app.py reset-password`.
+
+La commande efface le mot de passe réglé dans **Settings** et ferme toutes les sessions : le mot de passe de
 `secrets/password` compte de nouveau. Connectez-vous avec lui, puis changez-le.
 
 ## La connexion répond « Too many attempts » {#too-many-attempts}

@@ -1,7 +1,7 @@
 ---
 title: Les réglages
 description: Le mot de passe et les sessions, le webhook, les clés d'API et leurs portées, le jeton Cloudflare.
-order: 4
+order: 5
 ---
 
 ## La page Settings {#settings-page}

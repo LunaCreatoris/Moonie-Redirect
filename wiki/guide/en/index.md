@@ -1,7 +1,7 @@
 ---
 title: Moonie Redirect
 description: Redirect makes fixed links whose target can change.
-status: Version 9.3.1
+status: Version 9.4.0
 github: https://github.com/LunaCreatoris/Moonie-Redirect
 order: 2
 ---
@@ -42,7 +42,9 @@ is optional. See [Cloudflare](cloudflare.md).
 
 ## The guide's pages {#pages}
 
-- [Getting started](getting-started.md): start the instance, store its secrets and sign in the first time.
+- [Getting started](getting-started.md): choose the mode, on the LAN's IP or behind a reverse proxy, start the
+  instance with Docker Compose, as a Portainer stack or with just, store its secrets and sign in the first time.
+- [Usage](usage.md): a walk through the admin interface, screen by screen, with screenshots.
 - [Links, NanoURLs and QR codes](links-nanourls-qrcodes.md): create, edit and share links.
 - [Cloudflare](cloudflare.md): the token, the hosts and a link's address.
 - [Settings](settings.md): security, the webhook, API keys and the Cloudflare tab.

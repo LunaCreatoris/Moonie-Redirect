@@ -1,7 +1,7 @@
 ---
 title: Moonie Redirect
 description: Redirect fait des liens figés dont la cible, elle, peut changer.
-status: Version 9.3.1
+status: Version 9.4.0
 github: https://github.com/LunaCreatoris/Moonie-Redirect
 order: 2
 ---
@@ -42,7 +42,9 @@ n'atteigne l'instance. C'est facultatif. Voir [Cloudflare](cloudflare.md).
 
 ## Les pages du guide {#pages}
 
-- [Démarrer](getting-started.md) : lancer l'instance, ranger ses secrets et se connecter la première fois.
+- [Démarrer](getting-started.md) : choisir le mode, sur l'IP du LAN ou derrière un reverse proxy, lancer l'instance
+  avec Docker Compose, en pile Portainer ou avec just, ranger ses secrets et se connecter la première fois.
+- [Utilisation](usage.md) : un tour de l'interface d'administration, écran par écran, en captures d'écran.
 - [Liens, NanoURL et QR codes](links-nanourls-qrcodes.md) : créer, modifier et partager les liens.
 - [Cloudflare](cloudflare.md) : le jeton, les noms et l'adresse d'un lien.
 - [Les réglages](settings.md) : la sécurité, le webhook, les clés d'API et l'onglet Cloudflare.

@@ -1,7 +1,7 @@
 ---
 title: Cloudflare
 description: Faire répondre un lien sur un nom de vos zones Cloudflare, servi par Cloudflare sans qu'aucune requête n'atteigne l'instance.
-order: 3
+order: 4
 ---
 
 ## Le principe {#how-it-works}

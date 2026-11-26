@@ -206,7 +206,7 @@ def test_compose_brings_the_store_key_as_a_secret_outside_the_volume():
     compose = (ROOT / "compose.yml").read_text(encoding="utf-8")
     assert "MOONIE_REDIRECT_STORE_KEY_FILE: /run/secrets/store_key" in compose
     assert "      - store_key\n" in compose
-    assert "  store_key:\n    file: ./secrets/store_key\n" in compose
+    assert "  store_key:\n    file: ${MOONIE_REDIRECT_SECRETS_DIR:-./secrets}/store_key\n" in compose
 
 
 def test_the_reset_password_recipe_runs_the_command_in_the_stack():

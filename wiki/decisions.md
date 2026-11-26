@@ -449,10 +449,67 @@ the plugins they mention, are the earlier app this one replaces (see the README'
 
 ## D33 · `just ci` is the only CI: no hosted pipeline
 
-- **What**: the merge gate is a green `just ci`, run locally: `just lint`, `just guide-check`, `just test`,
-  `just test-js` and `just goldens-check`. The repository carries no hosted pipeline file of any forge and needs no
+- **What**: the merge gate is a green `just ci`, run locally: `just lint`, `just guide-check`, `just compose-check`
+  (D34), `just test`, `just test-js` and `just goldens-check`. The repository carries no hosted pipeline file of any forge and needs no
   hosted runner.
 - **Why**: the hosted job ran a subset of `just ci` (no guide check, no goldens) on another platform, so a green job
   proved less than the gate already run before every merge, and kept a second copy of the steps to hold in step. One
   command, the same for everyone, is the whole check.
 - **Undo**: add a hosted job that runs `just ci` itself, on an arm64 runner with Docker, so the goldens match (D19).
+
+## D34 · Two ways to deploy, Docker Compose or just, and no published image
+
+- **What**: no image is published on any registry. `compose.yml` builds the image from the repository (`build: .`,
+  tagged `MOONIE_REDIRECT_IMAGE`, `moonie-redirect:local` by default), every variable it reads has a default but the
+  public address, and the secret files sit in `MOONIE_REDIRECT_SECRETS_DIR` (`./secrets` by default). The guide and
+  the README offer two ways: plain `docker compose up -d --build` (or a Portainer stack), and `just run`, which runs
+  the same command. just is otherwise the contributors' tool. In Portainer the image is built on the host first, and
+  the stack is added with the web editor, its `build: .` line dropped and the secrets' folder given as an absolute
+  path. `just compose-check`, in `just ci`, runs `docker compose config` with only the public address set, and
+  `tests/test_compose.py` pins the rest.
+- **Why**: the owner chose not to publish images, and someone deploying with Docker Compose or Portainer should not
+  need just. Portainer documents building from a Git stack as not fully implemented and build steps as failing on
+  remote environments, and resolves a Git stack's relative paths only in its Business Edition: an image built on the
+  host and absolute secret paths are what works in its Community Edition.
+- **Undo**: drop `build: .` and the secrets' folder variable from `compose.yml`, the `compose-check` recipe and
+  `tests/test_compose.py`, and point the guide back to `just run` alone.
+
+## D35 · 9.4.0: LAN mode by default, the reverse proxy as an overlay
+
+- **What**: `compose.yml` alone is LAN mode: it publishes the app's port on the host,
+  `${MOONIE_REDIRECT_BIND:-0.0.0.0}:${MOONIE_REDIRECT_PORT:-8080}:8080`, and names no network, so a plain
+  `docker compose up -d --build` runs with nothing made beforehand, in plain http on the host's address. Reverse-proxy
+  mode is `compose.proxy.yml`, laid over it (`docker compose -f compose.yml -f compose.proxy.yml up -d --build`, or
+  `just run-proxy`): it drops the published port (`ports: !reset []`), joins the proxy's external network under the
+  alias `moonie-redirect`, and carries Traefik labels as the example, its host required (`MOONIE_REDIRECT_HOST`). Any
+  other proxy is pointed at `moonie-redirect:8080` on that network, or at `127.0.0.1:8080` with LAN mode bound to
+  loopback when it runs on the host. `just compose-check` checks both modes, and that the first publishes 8080 and the
+  second nothing. The app itself changes nothing: the session cookie is already `Secure` only on an `https` public
+  base URL, a missing `Sec-Fetch-Site` (what a browser sends from an insecure context) already passes like an old
+  browser's, links never come from the request's host, and no HSTS header is sent; `tests/test_lan_mode.py` pins a
+  full login, a create and the links followed over http on an IP, and that https keeps its Secure cookie.
+- **Why**: the owner wants Redirect on a LAN IP with no reverse proxy as a first-class mode. Before, a plain
+  `docker compose up` stopped on the missing external `proxy` network and published no port. An overlay keeps the
+  proxy setup one flag away without a second copy of the service. LAN mode is plain http, so the guide and the README
+  say it is meant for a trusted LAN.
+- **Undo**: put the `proxy` network, the commented labels and a commented `ports` line back in `compose.yml`, drop
+  `compose.proxy.yml`, `just run-proxy`, the second check of `just compose-check` and `tests/test_lan_mode.py`, and
+  point the guide back to the single path.
+
+## D36 · The guide's screenshots are the goldens, copied byte for byte
+
+- **What**: the guide shows 13 screenshots of the admin, all on one page, `usage.md` ("Usage" / "Utilisation"), a
+  walk through the screens in order; the other pages carry no image, only a link to it. Each image in
+  `wiki/guide/img` is a byte copy of a full 1440-pixel golden from `tests/goldens`, mapped in `tools/guide_images.py`
+  (`IMAGES`). `just guide-images` copies them, `just goldens` runs that copy after every capture, and
+  `just guide-images-check` (in `just ci`, with `tests/test_guide_images.py` in `just test`) fails when an image
+  differs from its golden, is missing or unmapped, has a name SiteLuna refuses, weighs over 2,000,000 bytes, or is not
+  shown by a page in both `fr` and `en`.
+- **Why**: the goldens are already deterministic, made of invented fixture data, and checked byte for byte, so a copy
+  needs no capture of its own and cannot drift from the UI it shows. SiteLuna opens guide images in a full-screen
+  viewer, so the full screens are kept uncropped. One page keeps the screenshots together, as the owner asked, and
+  leaves the reference pages as text.
+- **Undo**: drop `wiki/guide/img`, both `usage.md` pages and their lines in `index.md` and `getting-started.md` (and
+  shift the pages' `order` back down by one), `tools/guide_images.py`, `tests/test_guide_images.py`, the
+  `guide-images` and `guide-images-check` recipes, the copy at the end of `just goldens`, and the `img` exception in
+  `tests/test_guide.py`.

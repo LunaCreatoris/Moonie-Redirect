@@ -151,8 +151,8 @@ def test_the_session_token_is_for_the_session_only(client):
     assert not any(name.lower().startswith("access-control-") for name in answer.headers.keys())
 
 
-def test_version_is_9_3_1():
-    assert app.VERSION == "9.3.1"
+def test_version_is_9_4_0():
+    assert app.VERSION == "9.4.0"
 
 
 # --- The frame --------------------------------------------------------------------------------------------------------

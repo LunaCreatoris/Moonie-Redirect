@@ -12,9 +12,9 @@ step.
 Versions before 8 were an earlier, unpublished app built on a plugin framework, whose last release was 7.0.1.
 Version 8 rewrote it as this plain standalone app, with no framework under it, keeping its public paths, its table and
 its codes, so links and QR codes printed with 7.0.1 keep working once its rows are imported. Version 9 brought back
-its admin pages, 9.1 its Cloudflare plugin, 9.2 its settings, and 9.3 moved the Cloudflare page under Settings. The
-`import-v7` command and the upgrade and rollback notes below only matter to those earlier installs; a new install can
-skip them. Files ported from 7.0.1 name their source on their first line.
+its admin pages, 9.1 its Cloudflare plugin, 9.2 its settings, 9.3 moved the Cloudflare page under Settings, and 9.4
+made the LAN's IP, with no reverse proxy, the default deployment. The `import-v7` command and the upgrade and rollback
+notes below only matter to those earlier installs; a new install can skip them. Files ported from 7.0.1 name their source on their first line.
 
 ## What it does
 
@@ -41,7 +41,7 @@ Every link also answers at its short link, `/links/<id>`, where `<id>` is 8 lett
 - A visit only reads, on a read-only connection. Each visit logs one line with the path and the status, never the
   target, which may carry a token.
 
-`GET /health` answers `{"status": "ok", "version": "9.3.1"}`, or `503` when the database cannot be read.
+`GET /health` answers `{"status": "ok", "version": "9.4.0"}`, or `503` when the database cannot be read.
 
 ### Admin pages
 
@@ -259,9 +259,9 @@ and ends every session, so the file's password counts again.
 
 The two values the app must read back, the Cloudflare token and the webhook's secret, are sealed in the database with
 AES-256-GCM under the **store key**: 64 hexadecimal characters in `MOONIE_REDIRECT_STORE_KEY_FILE`, a compose secret
-kept outside the data volume (`just store-key > secrets/store_key`). Without that variable the app draws `store.key`
-once beside the database and logs at each start that a backup of the volume then holds both the secrets and their
-key. A key file named but unreadable or malformed stops the start.
+kept outside the data volume (`openssl rand -hex 32 > secrets/store_key`, or `just store-key > secrets/store_key`).
+Without that variable the app draws `store.key` once beside the database and logs at each start that a backup of the
+volume then holds both the secrets and their key. A key file named but unreadable or malformed stops the start.
 
 - Back the key file up apart from the database (a password manager): the database alone gives no readable secret.
   The password hash and the keys' digests need no key.
@@ -347,20 +347,27 @@ function signedByRedirect(secret, headers, body) {
 
 | Variable                           | Meaning                                                                    |
 | ---------------------------------- | -------------------------------------------------------------------------- |
-| `MOONIE_REDIRECT_IMAGE`            | the image to run, `moonie-redirect:local` by default (pin a version or digest in production) |
-| `MOONIE_REDIRECT_PROXY_NETWORK`    | the reverse proxy's external network, `proxy` by default                   |
-| `MOONIE_REDIRECT_HOST`             | the public host in the Traefik router's rule, once its labels are uncommented |
-| `MOONIE_REDIRECT_ENTRYPOINT`       | the Traefik entrypoint of that router, `websecure` by default               |
+| `MOONIE_REDIRECT_IMAGE`            | the name compose builds the image under and runs, `moonie-redirect:local` by default |
+| `MOONIE_REDIRECT_SECRETS_DIR`      | the folder holding the secret files, `./secrets` by default; an absolute host path for a Portainer stack |
+| `MOONIE_REDIRECT_PORT`             | LAN mode: the host's port, `8080` by default                               |
+| `MOONIE_REDIRECT_BIND`             | LAN mode: the host address the port listens on, `0.0.0.0` (every one) by default; `127.0.0.1` for a proxy on the host |
+| `MOONIE_REDIRECT_PROXY_NETWORK`    | proxy mode: the reverse proxy's external network, `proxy` by default       |
+| `MOONIE_REDIRECT_HOST`             | proxy mode: the public host in the Traefik router's rule; required by `compose.proxy.yml` |
+| `MOONIE_REDIRECT_ENTRYPOINT`       | proxy mode: the Traefik entrypoint of that router, `websecure` by default   |
 | `TZ`                               | the container's time zone, `UTC` by default; links expire by UTC days whatever it is |
 
-The session cookie is `Secure` when the public base URL is `https`.
+The session cookie is `Secure` when the public base URL is `https`, and not over plain `http` (LAN mode), where a
+browser would drop a `Secure` cookie. The app sends no HSTS header: on `https`, that is the reverse proxy's call.
 
 ## Recipes
 
-Every recipe runs in a pinned image, the same on macOS, Linux and Windows. `just` lists them.
+just is the contributors' tool: deploying needs only Docker Compose (see Deploying). Every recipe runs in a pinned
+image, the same on macOS, Linux and Windows. `just` lists them.
 
 - `just ci`: the merge gate: `just lint`, `just guide-check` (the guide in `wiki/guide`, checked by
-  `tools/guide_check.py`), `just test` (pytest), `just test-js` (the front's logic under Node) and
+  `tools/guide_check.py`), `just guide-images-check` (the guide's screenshots), `just compose-check` (`docker compose config` on both modes with `.env.example`: LAN mode
+  with only the public address set, which must publish 8080, and proxy mode with the proxy's host too, which must
+  publish nothing; in a pinned Docker CLI image, so the stack deploys with no just), `just test` (pytest), `just test-js` (the front's logic under Node) and
   `just goldens-check`. `just format` formats. It is the only CI: there is no hosted pipeline, and a change merges
   only on a green local `just ci` (D33).
 - `just goldens [WALK ...]`: capture the GUI goldens into `tests/goldens` (walks `frame`, `links`, `nanourls`,
@@ -369,11 +376,16 @@ Every recipe runs in a pinned image, the same on macOS, Linux and Windows. `just
   fixed clock and fixed draws. `just goldens-check` fails when one byte differs from the committed ones;
   `just goldens-stability` captures twice and compares. A UI change regenerates them, and the images are looked at
   before they are committed.
+- `just guide-images`: copy the guide's screenshots, `wiki/guide/img`, from the goldens, byte for byte, as
+  `tools/guide_images.py` maps them. `just goldens` runs it after every capture, so a UI change refreshes the guide
+  too; `just guide-images-check` fails when an image differs from its golden, has a name or a weight SiteLuna
+  refuses, or is not shown by a page in both languages.
 - The goldens are byte-exact on `linux/arm64` only, so `just ci` expects an arm64 Docker host (an Apple silicon Mac, or
   an arm64 Linux machine). An amd64 host runs that image under QEMU emulation, which must be installed, and its
   captures may differ by bytes.
 - `just build`: the image `moonie-redirect:local`.
-- `just run`: the stack from `compose.yml` and `.env`.
+- `just run`: the stack in LAN mode, from `compose.yml` and `.env`, `docker compose up -d --build`.
+- `just run-proxy`: the stack behind a reverse proxy, the same command with `-f compose.yml -f compose.proxy.yml`.
 - `just lock`: re-pin `requirements*.txt` (needs `uv` on the host).
 - `just import-v7 <path>`: import a 7.0.1 database (below).
 - `just store-key`: print a new store key; `just store-key > secrets/store_key` makes the compose secret.
@@ -382,23 +394,61 @@ Every recipe runs in a pinned image, the same on macOS, Linux and Windows. `just
 
 ## Deploying
 
-`compose.yml` runs the image read-only, with every capability dropped, `no-new-privileges`, a 16 MiB `/tmp`, 128 MiB of
-memory and 64 processes at most. The data lives in the `data` volume, the store key, the password and the token come
-in as secrets, and no port is published: Traefik reaches the container on its external network
-(`MOONIE_REDIRECT_PROXY_NETWORK`, `proxy` by default). Its labels are in `compose.yml`, commented, to set to the public
-host. The app is meant for the LAN only.
+No image is published on any registry: compose builds it from this repository (`build: .`, tagged
+`MOONIE_REDIRECT_IMAGE`, `moonie-redirect:local` by default). `compose.yml` runs it read-only, with every capability
+dropped, `no-new-privileges`, a 16 MiB `/tmp`, 128 MiB of memory and 64 processes at most. The data lives in the
+`data` volume, and the store key, the password and the token come in as secrets. The app is meant for the LAN only.
 
-1. Copy `.env.example` to `.env` and set `MOONIE_REDIRECT_PUBLIC_BASE_URL`.
-2. Create `secrets/store_key` (`just store-key > secrets/store_key`, or on a host without the repo
-   `openssl rand -hex 32 > secrets/store_key`), `secrets/password` and `secrets/api_token` as `.env.example` says,
-   owned by uid 10001, mode 0400. Keep a copy of the store key apart from the backups of the `data` volume.
+Two modes (D35):
+
+- **On the LAN's IP** (the default, `compose.yml` alone): the port is published on the host,
+  `${MOONIE_REDIRECT_BIND:-0.0.0.0}:${MOONIE_REDIRECT_PORT:-8080}`, and no network has to exist beforehand. The public
+  base URL is the host's address and port, such as `http://192.0.2.10:8080`. **This is plain http, with no
+  encryption: the password and the session cookie cross the network in clear, so it is meant for a trusted LAN.** The
+  session cookie is not `Secure` there; the CSRF token, the `Sec-Fetch-Site` check (a browser sends none from an
+  insecure context, and that is accepted, as from an old browser) and the content security policy work the same.
+- **Behind a reverse proxy** (`compose.proxy.yml` laid over it, Docker Compose 2.24 or newer for its `!reset`): no port
+  is published, and the container joins the proxy's external network (`MOONIE_REDIRECT_PROXY_NETWORK`, `proxy` by
+  default, made with `docker network create proxy` if it does not exist), where it answers at `moonie-redirect:8080`.
+  The overlay carries Traefik labels as the example, with the router's host in `MOONIE_REDIRECT_HOST` (required) and
+  its entrypoint in `MOONIE_REDIRECT_ENTRYPOINT`. Any other proxy in Docker ignores the labels and is pointed at
+  `http://moonie-redirect:8080` on that network; a proxy installed on the host keeps LAN mode with
+  `MOONIE_REDIRECT_BIND=127.0.0.1` and points at `http://127.0.0.1:8080`. The app needs no forwarded header: it never
+  builds its links from the request. The public base URL is the proxy's `https` address.
+
+1. Get the repository (`git clone`, or its archive). Copy `.env.example` to `.env` and set
+   `MOONIE_REDIRECT_PUBLIC_BASE_URL` for the mode chosen (and `MOONIE_REDIRECT_HOST` behind a proxy).
+2. Create the secrets, owned by uid 10001, mode 0400 (on Docker Desktop, mode 0444 instead), as `.env.example` says:
+
+   ```sh
+   install -d -m 0700 secrets
+   openssl rand -hex 32 > secrets/store_key
+   printf '%s\n' 'a long admin password' > secrets/password
+   openssl rand -hex 32 > secrets/api_token
+   sudo chown 10001:10001 secrets/* && sudo chmod 0400 secrets/*
+   ```
+
+   Keep a copy of the store key apart from the backups of the `data` volume. `MOONIE_REDIRECT_SECRETS_DIR` moves the
+   folder elsewhere.
 3. The API token file is an optional fallback: once signed in, make scoped keys in Settings instead, and comment the
    `api_token` lines of `compose.yml` out to do without the file. The Cloudflare token file is optional too: set the
    token in Settings, or create its file the same way and uncomment its lines in `compose.yml`.
-4. `just run`, then check `/health`, sign in and change the password in **Settings > Security**.
+4. Start the stack one of two ways, then check `/health`, sign in and change the password in **Settings > Security**:
+   - **Docker Compose**, with nothing else: on the LAN's IP `docker compose up -d --build`; behind a reverse proxy
+     `docker compose -f compose.yml -f compose.proxy.yml up -d --build`. `COMPOSE_PATH_SEPARATOR=,` and
+     `COMPOSE_FILE=compose.yml,compose.proxy.yml` in `.env` make every `docker compose` command (`exec`, `logs`,
+     `down`) read both files. Upgrading is `git pull` and the same command.
+   - **just**: `just run` on the LAN's IP, `just run-proxy` behind a reverse proxy, which run those same commands.
 
-With no Traefik, for a local try: `docker network create proxy`, and add `ports: ["8080:8080"]` to the `moonie`
-service. In production, pin the image by version or digest (`MOONIE_REDIRECT_IMAGE`).
+**As a Portainer stack.** Portainer documents building images from a Git stack as not fully implemented, and build
+steps as failing on remote environments; relative paths in a Git stack are a Business Edition option. So: on the
+Docker host, build the image (`docker build -t moonie-redirect:local .`) and put the secrets in an absolute folder;
+then add a stack with the **Web editor**, paste `compose.yml` without its `build: .` line (behind a reverse proxy,
+replace its `ports` lines with the `networks` and `labels` lines of `compose.proxy.yml`, and add that file's
+`networks` block), and set `MOONIE_REDIRECT_PUBLIC_BASE_URL` and `MOONIE_REDIRECT_SECRETS_DIR` (that absolute folder)
+in its environment variables. To upgrade, rebuild the image on the host and update the stack, with re-pulling off. A
+**Repository** stack reads `compose.yml` unchanged, so it only suits a copy whose `compose.yml` already fits, on
+Portainer's local environment, with the image built beforehand. The guide's Getting started page walks through it.
 
 ### Upgrading and rolling back
 
@@ -430,6 +480,9 @@ the same columns, so the rows go over unchanged, ids and paths included, and pri
    and that keeps the rules (id code, path, `http`/`https` target, kind, status). It prints how many rows it imported,
    how many were duplicates (id or path already here) and how many it refused. Running it again changes nothing. A
    file that is not a 7.0.1 database stops it with one line and exit code 1.
+
+Without just, step 3 is `docker compose run --rm --no-deps -v /srv/import/moonie.db:/import/moonie.db:ro moonie
+python app.py import-v7 /import/moonie.db`, with the copy's absolute path.
 
 Outside the stack, the command is `python app.py import-v7 <path>`, with `MOONIE_REDIRECT_DB` naming the new database.
 
